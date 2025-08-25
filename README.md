@@ -30,9 +30,9 @@ Analysis of **860,196 SLURM jobs** from **May 23, 2024** to **May 19, 2025** on 
 ## Job Success Patterns
 
 ### Job States Distribution
-- **COMPLETED**: 573,856 jobs (66.71%) ✅
-- **FAILED**: 166,253 jobs (19.33%) ❌
-- **TIMEOUT**: 31,360 jobs (3.65%) ⏰
+- **COMPLETED**: 573,856 jobs (66.71%) 
+- **FAILED**: 166,253 jobs (19.33%) 
+- **TIMEOUT**: 31,360 jobs (3.65%) 
 - **CANCELLED**: Various reasons, totaling ~8.3%
 - **OUT_OF_MEMORY**: 4,259 jobs (0.5%) 💾
 

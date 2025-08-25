@@ -8,10 +8,23 @@ class SLURMDashboard {
     }
 
     async init() {
+        console.log('Initializing SLURM Dashboard...');
+        this.showLoading();
         this.setupEventListeners();
-        await this.loadData();
-        this.updateDashboard();
-        this.hideLoading();
+        try {
+            await this.loadData();
+            await this.loadTabContent('overview'); // Load overview content by default
+            this.updateDashboard();
+        } catch (e) {
+            console.error('Initialization error:', e);
+        } finally {
+            this.hideLoading();
+        }
+        
+        // Preload all other tabs in the background for smooth switching
+        setTimeout(() => this.preloadAllTabs(), 1000);
+        
+        console.log('Dashboard initialized successfully');
     }
 
     setupEventListeners() {
@@ -25,7 +38,7 @@ class SLURMDashboard {
         });
     }
 
-    switchTab(tabName) {
+    async switchTab(tabName) {
         // Update active tab button
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.tab === tabName);
@@ -40,8 +53,40 @@ class SLURMDashboard {
         document.getElementById(tabName).classList.add('active');
         this.currentTab = tabName;
 
+        // Load tab content if not already loaded
+        await this.loadTabContent(tabName);
+
         // Refresh charts for the new tab
         this.refreshChartsForTab(tabName);
+    }
+
+    async loadTabContent(tabName) {
+        const contentContainer = document.getElementById(`${tabName}-content`);
+        if (!contentContainer) return;
+
+        // Check if content is already loaded
+        if (contentContainer.children.length > 0) return;
+
+        try {
+            console.log(`Loading tab content: ${tabName}.html`);
+            const response = await fetch(`${tabName}.html`);
+            if (response.ok) {
+                const html = await response.text();
+                contentContainer.innerHTML = html;
+                console.log(`Loaded ${tabName} content`);
+            } else {
+                console.error(`Failed to load ${tabName} content, status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error(`Error loading ${tabName} content:`, error);
+        }
+    }
+
+    async preloadAllTabs() {
+        const tabs = ['overview', 'performance', 'resources', 'users', 'trends'];
+        const promises = tabs.map(tab => this.loadTabContent(tab));
+        await Promise.all(promises);
+        console.log('All tab content preloaded');
     }
 
     async loadData() {
@@ -103,7 +148,8 @@ class SLURMDashboard {
         try {
             this.updateOverviewCards();
             this.updateDetailedMetrics();
-            this.createCharts();
+            // Create charts only for the active tab to avoid rendering on hidden/missing canvases
+            this.refreshChartsForTab(this.currentTab);
             this.updateLastUpdated();
             this.showDataStatus();
             console.log('Dashboard updated successfully');
@@ -773,9 +819,12 @@ class SLURMDashboard {
 
     async refreshData() {
         this.showLoading();
-        await this.loadData();
-        this.updateDashboard();
-        this.hideLoading();
+        try {
+            await this.loadData();
+            this.updateDashboard();
+        } finally {
+            this.hideLoading();
+        }
     }
 
     showLoading() {
