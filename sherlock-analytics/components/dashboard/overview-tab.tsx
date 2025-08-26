@@ -86,13 +86,19 @@ export function OverviewTab({ data }: OverviewTabProps) {
               const totalCancelledCount = cancelledJobs.reduce((sum: number, job: JobState) => sum + job.count, 0)
               const totalCancelledPercentage = cancelledJobs.reduce((sum: number, job: JobState) => sum + job.percentage, 0)
               
-              // Get other significant job states (non-cancelled, non-completed, non-failed, non-timeout, non-OOM)
+              // Get specific job states we want to display individually
+              const nodeFailJobs = data.job_states.states.find((s: JobState) => s.state === "NODE_FAIL")
+              const requeuedJobs = data.job_states.states.find((s: JobState) => s.state === "REQUEUED")
+              
+              // Get remaining other job states
               const otherJobs = data.job_states.states.filter((s: JobState) => 
                 !s.state.startsWith("CANCELLED") && 
                 s.state !== "COMPLETED" && 
                 s.state !== "FAILED" && 
                 s.state !== "TIMEOUT" && 
-                s.state !== "OUT_OF_MEMORY"
+                s.state !== "OUT_OF_MEMORY" &&
+                s.state !== "NODE_FAIL" &&
+                s.state !== "REQUEUED"
               )
               
               return (
@@ -190,6 +196,42 @@ export function OverviewTab({ data }: OverviewTabProps) {
                         </div>
                       </div>
                       <Progress value={outOfMemoryJobs.percentage} className="h-2 bg-purple-100" />
+                    </div>
+                  )}
+
+                  {nodeFailJobs && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-red-600" />
+                          <span className="text-sm font-medium">Node Fail</span>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                            {nodeFailJobs.percentage}%
+                          </Badge>
+                          <p className="text-xs text-muted-foreground">{nodeFailJobs.count.toLocaleString()} jobs</p>
+                        </div>
+                      </div>
+                      <Progress value={nodeFailJobs.percentage} className="h-2 bg-red-100" />
+                    </div>
+                  )}
+
+                  {requeuedJobs && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium">Requeued</span>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                            {requeuedJobs.percentage}%
+                          </Badge>
+                          <p className="text-xs text-muted-foreground">{requeuedJobs.count.toLocaleString()} jobs</p>
+                        </div>
+                      </div>
+                      <Progress value={requeuedJobs.percentage} className="h-2 bg-blue-100" />
                     </div>
                   )}
 
