@@ -26,6 +26,7 @@ import {
   BookmarkPlus,
   Filter,
   Bell,
+  BookOpen,
 } from "lucide-react"
 import { OverviewTab } from "@/components/dashboard/overview-tab"
 import { PerformanceTab } from "@/components/dashboard/performance-tab"
@@ -35,6 +36,7 @@ import { TrendsTab } from "@/components/dashboard/trends-tab"
 import { EfficiencyTab } from "@/components/dashboard/efficiency-tab"
 import { PredictiveTab } from "@/components/dashboard/predictive-tab"
 import { SustainabilityTab } from "@/components/dashboard/sustainability-tab"
+import { DocumentationTab } from "@/components/dashboard/documentation-tab"
 import { useSlurmData } from "@/hooks/useSlurmData"
 
 export default function Dashboard() {
@@ -71,6 +73,7 @@ export default function Dashboard() {
     efficiency: "Resource optimization and waste analysis based on actual usage",
     predictive: "AI-powered forecasting and predictions from historical data",
     sustainability: "Resource efficiency and sustainability metrics from cluster performance",
+    documentation: "Comprehensive documentation of data sources, calculations, and assumptions",
   }
 
   return (
@@ -215,7 +218,7 @@ export default function Dashboard() {
               </Tooltip>
             </div>
 
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 lg:w-fit glass-card border-0 shadow-lg p-2 h-auto gap-1">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9 lg:w-fit glass-card border-0 shadow-lg p-2 h-auto gap-1">
               <TabsTrigger
                 value="overview"
                 className="gap-2 px-4 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
@@ -272,6 +275,13 @@ export default function Dashboard() {
                 <Leaf className="h-4 w-4" />
                 <span className="hidden sm:inline font-medium text-xs lg:text-sm">Green</span>
               </TabsTrigger>
+              <TabsTrigger
+                value="documentation"
+                className="gap-2 px-4 py-3 data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-secondary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
+              >
+                <BookOpen className="h-4 w-4" />
+                <span className="hidden sm:inline font-medium text-xs lg:text-sm">Docs</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview">
@@ -304,6 +314,10 @@ export default function Dashboard() {
 
             <TabsContent value="sustainability">
               <SustainabilityTab data={data!} />
+            </TabsContent>
+
+            <TabsContent value="documentation">
+              <DocumentationTab data={data!} />
             </TabsContent>
           </Tabs>
         )}
